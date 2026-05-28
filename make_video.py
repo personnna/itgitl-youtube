@@ -1,9 +1,8 @@
-from moviepy.editor import (
+from moviepy import (
     ImageClip, AudioFileClip, concatenate_videoclips,
     CompositeVideoClip, TextClip, ColorClip
 )
-from moviepy.video.fx.fadein import fadein
-from moviepy.video.fx.fadeout import fadeout
+from moviepy.video.fx import FadeIn as fadein, FadeOut as fadeout
 import os
 
 
@@ -45,9 +44,9 @@ def make_video(
 
         # subtle fade between images
         if i > 0:
-            clip = clip.fx(fadein, duration=0.5)
+            clip = clip.with_effects([fadein(0.5)])
         if i < len(image_paths) - 1:
-            clip = clip.fx(fadeout, duration=0.5)
+            clip = clip.with_effects([fadeout(0.5)])
 
         clips.append(clip)
 
