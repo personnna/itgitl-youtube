@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+from dotenv import load_dotenv
 
 from generate_script import generate_script
 from tts import text_to_speech
@@ -9,6 +10,7 @@ from fetch_images import fetch_images
 from make_video import make_video
 from upload import upload_video
 
+load_dotenv()
 
 TOPICS_FILE = "topics.json"
 PROGRESS_FILE = "progress.json"   # tracks which topic is next

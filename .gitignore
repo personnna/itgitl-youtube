@@ -1,2 +1,10 @@
 client_secrets.json
 token.pickle
+.env
+
+token.pickle
+client_secrets.json
+output/
+images/
+*.mp4
+*.mp3
