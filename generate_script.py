@@ -2,16 +2,7 @@ import json
 import os
 import requests
 
-
-# Featherless uses OpenAI-compatible API
-FEATHERLESS_API_URL = "https://api.featherless.ai/v1/chat/completions"
-# Good free models on Featherless:
-MODELS = [
-    "TroyDoesAI/Llama-3.1-8B-Instruct",
-    "CalamitousFelicitousness/Qwen2.5-7B-Instruct-fp8-dynamic",
-    "RedHatAI/Mistral-Nemo-Instruct-2407-FP8",
-    "unsloth/Phi-3.5-mini-instruct",
-]
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 
 def generate_script(topic: dict) -> dict:
@@ -19,10 +10,10 @@ def generate_script(topic: dict) -> dict:
     Takes a topic dict and returns a full video script.
     Uses Featherless AI (OpenAI-compatible, free credits).
     """
-    api_key = os.environ["FEATHERLESS_API_KEY"]
+    api_key = os.environ["GEMINI_API_KEY"]
 
-    prompt = f"""You are the scriptwriter for "IT GIRL" — a YouTube channel that explains tech concepts 
-simply and beautifully, using girly/lifestyle analogies. The vibe is warm, smart, and fun — 
+    prompt = f"""You are the scriptwriter for "IT GIRL" — a YouTube channel that explains tech concepts
+simply and beautifully, using girly/lifestyle analogies. The vibe is warm, smart, and fun —
 like a knowledgeable friend explaining things over coffee.
 
 Write a YouTube video script for this topic:
@@ -53,37 +44,21 @@ Return ONLY a JSON object, no markdown, no extra text:
   "tags": ["tag1", "tag2", ...]
 }}"""
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2000}
     }
 
-    import time, sys
-    last_error = None
-    for model in MODELS:
-        print(f"  Trying model: {model}", flush=True)
-        body = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 2000,
-            "temperature": 0.7
-        }
-        for attempt in range(3):
-            response = requests.post(FEATHERLESS_API_URL, headers=headers, json=body)
-            if response.ok:
-                break
-            print(f"  Attempt {attempt+1} failed ({response.status_code}): {response.text[:200]}", flush=True)
-            if response.status_code == 503:
-                time.sleep(10)
-            else:
-                break
-        if response.ok:
-            break
-        last_error = response
-    else:
-        last_error.raise_for_status()
+    response = requests.post(
+        f"{GEMINI_API_URL}?key={api_key}",
+        headers={"Content-Type": "application/json"},
+        json=body
+    )
+    if not response.ok:
+        print(f"Gemini error {response.status_code}: {response.text}", flush=True)
+    response.raise_for_status()
 
-    raw = response.json()["choices"][0]["message"]["content"].strip()
+    raw = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
 
     # clean markdown fences if present
     if "```" in raw:
