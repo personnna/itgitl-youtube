@@ -8,8 +8,9 @@ FEATHERLESS_API_URL = "https://api.featherless.ai/v1/chat/completions"
 # Good free models on Featherless:
 MODELS = [
     "TroyDoesAI/Llama-3.1-8B-Instruct",
-    "amgadhasan/Llama-3.1-8B-Instruct",
-    "meta-llama/Llama-3.1-8B-Instruct",
+    "CalamitousFelicitousness/Qwen2.5-7B-Instruct-fp8-dynamic",
+    "RedHatAI/Mistral-Nemo-Instruct-2407-FP8",
+    "unsloth/Phi-3.5-mini-instruct",
 ]
 
 
