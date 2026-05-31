@@ -6,7 +6,7 @@ import requests
 # Featherless uses OpenAI-compatible API
 FEATHERLESS_API_URL = "https://api.featherless.ai/v1/chat/completions"
 # Good free models on Featherless:
-MODEL = "mistralai/Mistral-7B-Instruct-v0.3"
+MODEL = "TroyDoesAI/Llama-3.1-8B-Instruct"
 
 
 def generate_script(topic: dict) -> dict:
