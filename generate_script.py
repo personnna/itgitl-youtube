@@ -61,6 +61,8 @@ Return ONLY a JSON object, no markdown, no extra text:
     }
 
     response = requests.post(FEATHERLESS_API_URL, headers=headers, json=body)
+    if not response.ok:
+        print(f"API error {response.status_code}: {response.text}")
     response.raise_for_status()
 
     raw = response.json()["choices"][0]["message"]["content"].strip()
