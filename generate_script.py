@@ -6,7 +6,11 @@ import requests
 # Featherless uses OpenAI-compatible API
 FEATHERLESS_API_URL = "https://api.featherless.ai/v1/chat/completions"
 # Good free models on Featherless:
-MODEL = "TroyDoesAI/Llama-3.1-8B-Instruct"
+MODELS = [
+    "TroyDoesAI/Llama-3.1-8B-Instruct",
+    "amgadhasan/Llama-3.1-8B-Instruct",
+    "meta-llama/Llama-3.1-8B-Instruct",
+]
 
 
 def generate_script(topic: dict) -> dict:
@@ -53,19 +57,30 @@ Return ONLY a JSON object, no markdown, no extra text:
         "Content-Type": "application/json"
     }
 
-    body = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 2000,
-        "temperature": 0.7
-    }
-
-    response = requests.post(FEATHERLESS_API_URL, headers=headers, json=body)
-    if not response.ok:
-        import sys
-        print(f"API error {response.status_code}: {response.text}", flush=True)
-        sys.stdout.flush()
-    response.raise_for_status()
+    import time, sys
+    last_error = None
+    for model in MODELS:
+        print(f"  Trying model: {model}", flush=True)
+        body = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 2000,
+            "temperature": 0.7
+        }
+        for attempt in range(3):
+            response = requests.post(FEATHERLESS_API_URL, headers=headers, json=body)
+            if response.ok:
+                break
+            print(f"  Attempt {attempt+1} failed ({response.status_code}): {response.text[:200]}", flush=True)
+            if response.status_code == 503:
+                time.sleep(10)
+            else:
+                break
+        if response.ok:
+            break
+        last_error = response
+    else:
+        last_error.raise_for_status()
 
     raw = response.json()["choices"][0]["message"]["content"].strip()
 
